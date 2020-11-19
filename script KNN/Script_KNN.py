@@ -33,6 +33,13 @@ def main():
     
     train, test = splitTrainTest(randomized, 0.75)
 
+    # print("El train es:")
+    # print(train)
+    # print("\n")
+    # print("El test es:")
+    # print(test)
+    # print("\n\n")
+
     # Separamos las labels del Test. Es como si no nos las dieran!!
     for i in range(0, len(test)):
         print("Label "+str(i)+": \n"+str(test.iloc[i]))
@@ -42,11 +49,13 @@ def main():
     true, pred = 0, 0
 
     for i in range(0, len(test)):
-        clase = float(knn(test.iloc[i], train, 3))
-        print("El caso real es: "+str(test.mpg[i]))
-        print("La clase predicha con knn es: "+str(clase))
-        print()
-        if clase == test.iloc[i].mpg:
+        punto_predicho = knn(test.iloc[i], train, 3)
+        print("El punto predicho del Label "+str(i)+" es: ")
+        print(punto_predicho)
+        print("\n")
+        # print("El caso real es: "+str(test.mpg[i]))
+        # print("La clase predicha con knn es: "+str(clase))
+        if punto_predicho.mpg == test.iloc[i].mpg:
             true += 1
         pred += 1
 
@@ -119,7 +128,13 @@ def knn(newx, data, K):
             cont_0 += 1
         
     #asignar clase al nuevo caso
-    return 1 if cont_1>cont_0 else 0
+    #return 1 if cont_1>cont_0 else 0
+    if cont_1 > cont_0:
+        newx.mpg = float(1)
+    else:
+        newx.mpg = float(0)
+
+    return newx
 
 def euclideanDistance2points(x,y):
     """
@@ -134,7 +149,7 @@ def accuracy(true, pred):
     return (true/pred)
 
 if __name__ == '__main__':
-    #np.random.seed(25)
+    np.random.seed(25)
     main()
 
 
