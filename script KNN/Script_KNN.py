@@ -6,6 +6,7 @@ import csv
 import matplotlib.pyplot as plt
 from sklearn.model_selection import KFold
 
+
 def main():
     path_dataset = "mtcars.csv" # Escoged bien la ruta!!
     mtcars = pd.read_csv(path_dataset) # Leemos el csv
@@ -19,6 +20,7 @@ def main():
     print("Este es el dataset sin normalizar")
     print(mtcars)
     print("\n\n")
+
     
     # Ahora normalizamos los datos
     mtcars_normalizado = mtcars.loc[:, mtcars.columns != 'mpg'].apply(normalize, axis=1)
@@ -27,18 +29,19 @@ def main():
     print("Este es el dataset normalizado")
     print(mtcars_normalizado)
     print("\n\n")
+
     # Hacemos un split en train y test con un porcentaje del 0.75 
     
     randomized = mtcars_normalizado.sample(len(mtcars_normalizado), replace=False)
     
     train, test = splitTrainTest(randomized, 0.75)
 
-    # print("El train es:")
-    # print(train)
-    # print("\n")
-    # print("El test es:")
-    # print(test)
-    # print("\n\n")
+    print("El train es:")
+    print(train)
+    print("\n")
+    print("El test es:")
+    print(test)
+    print("\n\n")
 
     # Separamos las labels del Test. Es como si no nos las dieran!!
     for i in range(0, len(test)):
@@ -87,7 +90,7 @@ def splitTrainTest(data, percentajeTrain):
     train = data[0:longitud]
     test = data[longitud:len(data)]
 
-    return(train, test)
+    return(train, test)     
 
 def kFoldCV(data, K):
     """
@@ -113,10 +116,13 @@ def knn(newx, data, K):
     cont_1 = 0
     cont_0 = 0
     list_newx = list(newx) #recordamos que newx es una sola fila
+    list_newx.pop()
 
     for i in range(0, len(data)): 
         list_data = list(data.iloc[i])
-        euclideanList.append([euclideanDistance2points(np.array(list_newx), np.array(list_data)), data.mpg[i]]) 
+        list_data.pop()
+        if list_newx != list_data:
+            euclideanList.append([euclideanDistance2points(np.array(list_newx), np.array(list_data)), data.mpg[i]])
     
     #ordenamos la lista de menor a mayor distancias
     lista_distancias_ordenada = sorted(euclideanList)
@@ -125,7 +131,7 @@ def knn(newx, data, K):
     lista_vecinos = lista_distancias_ordenada[0:K]
 
     for j in range(0, len(lista_vecinos)):
-        if lista_vecinos[j][1] == 1:
+        if lista_vecinos[j][1] == 1.0:
             cont_1 += 1
         else:
             cont_0 += 1
