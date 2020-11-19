@@ -55,9 +55,12 @@ def main():
         print("\n")
         # print("El caso real es: "+str(test.mpg[i]))
         # print("La clase predicha con knn es: "+str(clase))
-        if punto_predicho.mpg == test.iloc[i].mpg:
+        if punto_predicho.mpgPred == punto_predicho.mpg:
             true += 1
         pred += 1
+
+    print("Los trues son "+str(true))
+    print("Los pred son "+str(pred))
 
     # Mostramos por pantalla el Accuracy por ejemplo
     print("Accuracy conseguido:")
@@ -129,10 +132,11 @@ def knn(newx, data, K):
         
     #asignar clase al nuevo caso
     #return 1 if cont_1>cont_0 else 0
+    #añadir nueva columna?????
     if cont_1 > cont_0:
-        newx.mpg = float(1)
+        newx['mpgPred'] = float(1)
     else:
-        newx.mpg = float(0)
+        newx['mpgPred'] = float(0)
 
     return newx
 
