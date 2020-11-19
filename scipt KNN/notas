@@ -1,0 +1,5 @@
+falta:
+splitear el data set de manera aleatoria    HECHO
+sacar el accuracy                           HECHO
+
+¿como cojo aleatoriamente el train y el test? ¿tiene que ver con el np.random.seed?

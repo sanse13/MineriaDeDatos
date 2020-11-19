@@ -9,6 +9,8 @@ from sklearn.model_selection import KFold
 def main():
     path_dataset = "mtcars.csv" # Escoged bien la ruta!!
     mtcars = pd.read_csv(path_dataset) # Leemos el csv
+    # randomized = mtcars.sample(len(mtcars), replace=False)
+    # print(randomized)
     # Discretizamos la variable clase para convertirlo en un problema de clasificacion
     ix_consumo_alto = mtcars.mpg >= 21 #consumo es una lista
     mtcars.mpg[ix_consumo_alto] = 1
@@ -17,6 +19,7 @@ def main():
     print("Este es el dataset sin normalizar")
     print(mtcars)
     print("\n\n")
+    
     # Ahora normalizamos los datos
     mtcars_normalizado = mtcars.loc[:, mtcars.columns != 'mpg'].apply(normalize, axis=1)
     # Añadimos la clase a nuestro dataset normalizado
@@ -26,28 +29,30 @@ def main():
     print("\n\n")
     # Hacemos un split en train y test con un porcentaje del 0.75 
     
-    train, test = splitTrainTest(mtcars_normalizado, 0.75)
+    randomized = mtcars_normalizado.sample(len(mtcars_normalizado), replace=False)
+    
+    train, test = splitTrainTest(randomized, 0.75)
 
     # Separamos las labels del Test. Es como si no nos las dieran!!
-
-    lista_test = []
-
     for i in range(0, len(test)):
-        lista_test.append(list(test.iloc[i]))
-
-    #print(lista_test)
+        print("Label "+str(i)+": \n"+str(test.iloc[i]))
+        print("\n\n")
 
     # Predecimos el conjunto de test
-    true = []
-    pred = []
+    true, pred = 0, 0
+
     for i in range(0, len(test)):
-        clase = knn(test.iloc[i], train, 3)
-        print("La clase es: "+str(clase))
-        print("La clase real es: "+str(test.iloc[i].mpg))
+        clase = float(knn(test.iloc[i], train, 3))
+        print("El caso real es: "+str(test.mpg[i]))
+        print("La clase predicha con knn es: "+str(clase))
+        print()
+        if clase == test.iloc[i].mpg:
+            true += 1
+        pred += 1
 
     # Mostramos por pantalla el Accuracy por ejemplo
     print("Accuracy conseguido:")
-    #print(accuracy(true_labels, predicted_labels))
+    print(accuracy(true, pred))
 
     # Algun grafico? Libreria matplotlib.pyplot
     return(0)
@@ -65,13 +70,12 @@ def splitTrainTest(data, percentajeTrain):
     Takes a pandas dataframe and a percentaje (0-1)
     Returns both train and test sets
     """
-    #si el 1 es la longitud completa, 0.75 será 3/4 de la longitud
-    longitud = len(data)
-    percentaje = int(longitud*percentajeTrain)
-    training_set = data[0:percentaje]
-    test_set = data[percentaje:longitud]
+    
+    longitud = int(len(data)*percentajeTrain)
+    train = data[0:longitud]
+    test = data[longitud:len(data)]
 
-    return(training_set, test_set)
+    return(train, test)
 
 def kFoldCV(data, K):
     """
@@ -96,19 +100,18 @@ def knn(newx, data, K):
     lista_vecinos = []
     cont_1 = 0
     cont_0 = 0
-
-    list_newx = list(newx)
+    list_newx = list(newx) #recordamos que newx es una sola fila
 
     for i in range(0, len(data)): 
         list_data = list(data.iloc[i])
-        euclideanList.append([euclideanDistance2points(list_newx, list_data), data.mpg[i]]) 
+        euclideanList.append([euclideanDistance2points(np.array(list_newx), np.array(list_data)), data.mpg[i]]) 
     
     #ordenamos la lista de menor a mayor distancias
     lista_distancias_ordenada = sorted(euclideanList)
+    
+    #sacamos solo los K primeros más cercanos
     lista_vecinos = lista_distancias_ordenada[0:K]
 
-    #contar cuantas clases tiene cada caso
-    #si es mayor que 21, su clase es 1
     for j in range(0, len(lista_vecinos)):
         if lista_vecinos[j][1] == 1:
             cont_1 += 1
@@ -116,41 +119,24 @@ def knn(newx, data, K):
             cont_0 += 1
         
     #asignar clase al nuevo caso
-
     return 1 if cont_1>cont_0 else 0
 
 def euclideanDistance2points(x,y):
     """
     Takes 2 matrix - Not pandas dataframe!
     """
-    x, y = np.array(x), np.array(y)
     #np.linalg.norm -> distancia euclidea entre 2 vectores
     return np.linalg.norm(x-y)
 
 # FUNCION accuracy
 def accuracy(true, pred):
 
-    return (true[0]+true[1])/(pred[0]+pred[1]+pred[2]+pred[3])
+    return (true/pred)
 
 if __name__ == '__main__':
-    np.random.seed(25)
+    #np.random.seed(25)
     main()
 
 
-# path_dataset = "mtcars.csv" # Escoged bien la ruta!!
-# data = pd.read_csv(path_dataset) # Leemos el csv
-# # Discretizamos la variable clase para convertirlo en un problema de clasificacion
-# ix_consumo_alto = data.mpg >= 21 #consumo es una lista
-# data.mpg[ix_consumo_alto] = 1
-# data.mpg[~ix_consumo_alto] = 0
-# train, test = splitTrainTest(data, 0.75)
-# lista_test = list(test.iloc[0])
-# print(list(test.iloc[0]))
-# # print(lista_test)
-# # print(train)
-# # print(len(test))
-# # for i in range(0, 10):
-# #     print(list(data.iloc[i]))
-#me falta dividir el data set en train y test de manera aleatoria
 
 
